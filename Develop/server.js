@@ -6,7 +6,7 @@ const path= require('path');
 var uniqid=require('uniqid');
 
 //const {noteTitle,noteText}=require('./assets/js/index');
-const PORT= process.env.PORT || 8080;
+const PORT= process.env.PORT || 3001;
 
 app.use(express.urlencoded({extended:true}));
 app.use(express.json());
@@ -77,25 +77,7 @@ app.delete("/api/notes/:id", (req, res)=> {
   })
 })
 
-app.put("/api/notes/:id", function(req, res) {
-  const nId = JSON.parse(req.params.id)
-  console.log(nId)
-  fs.readFile(__dirname + "db/db.json", "utf8", (error, notes) =>{
-    if (error ){
-      return console.log(error)
-    }
-    notes.JSONparse(notes)
 
-    notes = notes.filter(val => val.id !== nId)
-
-    fs.writeFile(__dirname +"db/db.json", JSON.stringify(notes),  (error, data)=> {
-      if (error) {
-        return error
-      }
-      res.json(data)
-    })
-  })
-})
 app.listen(PORT,()=>{
  console.log(`Listening on ${PORT}`);
 });
