@@ -1,8 +1,9 @@
 const express=require("express");
 const app=express();
-const {noteFile}=require("./db/db.json");
+
 const fs= require('fs');
 const path= require('path');
+var uniqid=require('uniqid');
 
 //const {noteTitle,noteText}=require('./assets/js/index');
 const PORT= process.env.PORT || 8080;
@@ -19,16 +20,19 @@ app.get("/notes",(req,res)=>{
   res.sendFile(path.join(__dirname ,"./public/notes.html"));
   
   });
-
-app.post("/api/notes", function (req, res) {
-  fs.readFile(__dirname + "/db/db.json", 'utf8', function (error, notes) {
+// should receive a new note to save on the rquest body add it to the db.json
+//file and then return the new note to the client.
+app.post("/api/notes", (req, res) =>{
+  fs.readFile(__dirname + "/db/db.json", 'utf8',  (error, notes)=> {
     if (error) {
       return console.log(error)
     }
     notes = JSON.parse(notes)
 
-    var id = notes[notes.length - 1].id + 1
-    var newNote = { title: req.body.title, text: req.body.text, id: id }
+    var id = notes[notes.length - 1].id+1;
+    
+   
+    var newNote = { title: req.body.title, text: req.body.text, id: id}
     var activeNote = notes.concat(newNote)
 
     fs.writeFile(__dirname + "/db/db.json", JSON.stringify(activeNote), function (error, data) {
@@ -41,9 +45,10 @@ app.post("/api/notes", function (req, res) {
   })
 })
 
-// Pull from db.json
-app.get("/api/notes", function (req, res) {
-  fs.readFile(__dirname + "/db/db.json", 'utf8', function (error, data) {
+
+app.get("/api/notes", (req, res)=> {
+  // should read all files on db json and return all saved notes
+  fs.readFile(__dirname + "/db/db.json", 'utf8',  (error, data)=> {
     if (error) {
       return console.log(error)
     }
@@ -52,42 +57,42 @@ app.get("/api/notes", function (req, res) {
   })
 });
 
-app.delete("/api/notes/:id", function (req, res) {
-  const noteId = JSON.parse(req.params.id)
-  console.log(noteId)
-  fs.readFile(__dirname + "/db/db.json", 'utf8', function (error, notes) {
+app.delete("/api/notes/:id", (req, res)=> {
+  const nId = JSON.parse(req.params.id);
+  console.log(nId);
+  fs.readFile(__dirname + "/db/db.json", 'utf8',  (error, notes)=> {
     if (error) {
       return console.log(error)
     }
     notes = JSON.parse(notes)
-
-    notes = notes.filter(val => val.id !== noteId)
+   
+    notes = notes.filter(val => val.id !== nId);
 
     fs.writeFile(__dirname + "/db/db.json", JSON.stringify(notes), function (error, data) {
       if (error) {
         return error
       }
-      res.json(notes)
+      res.json(data)
     })
   })
 })
 
 app.put("/api/notes/:id", function(req, res) {
-  const noteId = JSON.parse(req.params.id)
-  console.log(noteId)
-  fs.readFile(__dirname + "db/db.json", "utf8", function(error, notes) {
+  const nId = JSON.parse(req.params.id)
+  console.log(nId)
+  fs.readFile(__dirname + "db/db.json", "utf8", (error, notes) =>{
     if (error ){
       return console.log(error)
     }
     notes.JSONparse(notes)
 
-    notes = notes.filter(val => val.id !== noteId)
+    notes = notes.filter(val => val.id !== nId)
 
-    fs.writeFile(__dirname +"db/db.json", JSON.stringify(notes), function (error, data) {
+    fs.writeFile(__dirname +"db/db.json", JSON.stringify(notes),  (error, data)=> {
       if (error) {
         return error
       }
-      res.json(notes)
+      res.json(data)
     })
   })
 })
