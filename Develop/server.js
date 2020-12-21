@@ -3,7 +3,7 @@ const app=express();
 
 const fs= require('fs');
 const path= require('path');
-var uniqid=require('uniqid');
+
 
 //const {noteTitle,noteText}=require('./assets/js/index');
 const PORT= process.env.PORT || 3001;
@@ -29,11 +29,7 @@ app.post("/api/notes", (req, res) =>{
     }
     notes = JSON.parse(notes)
 
-    var id = notes[notes.length - 1].id+1;
-    
-   
-    var newNote = { title: req.body.title, text: req.body.text, id: id}
-    var activeNote = notes.concat(newNote)
+    var activeNote = newFunction(notes, req);
 
     fs.writeFile(__dirname + "/db/db.json", JSON.stringify(activeNote), function (error, data) {
       if (error) {
@@ -59,25 +55,42 @@ app.get("/api/notes", (req, res)=> {
 
 app.delete("/api/notes/:id", (req, res)=> {
   const nId = JSON.parse(req.params.id);
-  console.log(nId);
+  console.log(nId,'what is this?');
   fs.readFile(__dirname + "/db/db.json", 'utf8',  (error, notes)=> {
     if (error) {
       return console.log(error)
     }
     notes = JSON.parse(notes)
-   
-    notes = notes.filter(val => val.id !== nId);
+    
+    notes = filterJson(notes, nId);
 
     fs.writeFile(__dirname + "/db/db.json", JSON.stringify(notes), function (error, data) {
       if (error) {
         return error
       }
-      res.json(data)
+      res.json(notes)
     })
   })
-})
-
+});
 
 app.listen(PORT,()=>{
  console.log(`Listening on ${PORT}`);
 });
+
+function newFunction(notes, req) {
+  var id = generateID();
+
+
+  var newNote = { title: req.body.title, text: req.body.text, id: id };
+  var generatedNote = notes.concat(newNote);
+  return generatedNote;
+
+  function generateID() {
+    return notes[notes.length -1].id+1;
+  }
+}
+
+function filterJson(notes, nId) {
+  notes = notes.filter(idValue => idValue.id !== nId);
+  return notes;
+}
